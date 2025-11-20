@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Azure Setup Required - Web Dialer</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            padding: 40px;
+            max-width: 700px;
+            width: 100%;
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .error-box {
+            background: #fee;
+            border-left: 4px solid #dc3545;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 5px;
+        }
+
+        .error-box h2 {
+            color: #c33;
+            margin-bottom: 15px;
+            font-size: 20px;
+        }
+
+        .error-box ul {
+            list-style: none;
+            padding-left: 0;
+        }
+
+        .error-box li {
+            color: #c33;
+            padding: 5px 0;
+            padding-left: 25px;
+            position: relative;
+        }
+
+        .error-box li:before {
+            content: "✗";
+            position: absolute;
+            left: 0;
+            font-weight: bold;
+        }
+
+        .setup-instructions {
+            background: #f8f9fa;
+            padding: 25px;
+            border-radius: 10px;
+            margin: 20px 0;
+        }
+
+        .setup-instructions h2 {
+            color: #333;
+            margin-bottom: 15px;
+            font-size: 20px;
+        }
+
+        .setup-instructions ol {
+            padding-left: 20px;
+        }
+
+        .setup-instructions li {
+            margin: 15px 0;
+            line-height: 1.6;
+        }
+
+        .setup-instructions code {
+            background: #e9ecef;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+        }
+
+        .setup-instructions pre {
+            background: #2d2d2d;
+            color: #f8f8f2;
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;
+            margin: 10px 0;
+        }
+
+        .info-box {
+            background: #e7f3ff;
+            border-left: 4px solid #2196F3;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 5px;
+        }
+
+        .info-box strong {
+            color: #1976D2;
+        }
+
+        a {
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+
+        .btn {
+            display: inline-block;
+            background: #667eea;
+            color: white;
+            padding: 12px 24px;
+            border-radius: 8px;
+            text-decoration: none;
+            margin-top: 20px;
+            transition: all 0.2s ease;
+        }
+
+        .btn:hover {
+            background: #5568d3;
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Azure Communication Services Setup Required</h1>
+
+        <div class="error-box">
+            <h2>Configuration Errors</h2>
+            <ul>
+                {% for error in errors %}
+                <li>{{ error }}</li>
+                {% endfor %}
+            </ul>
+        </div>
+
+        <div class="setup-instructions">
+            <h2>Setup Instructions</h2>
+            <ol>
+                <li>
+                    <strong>Create an Azure Communication Services resource:</strong>
+                    <ul style="margin-top: 10px;">
+                        <li>Go to <a href="https://portal.azure.com" target="_blank">Azure Portal</a></li>
+                        <li>Create a new "Communication Services" resource</li>
+                        <li>Note down the connection string from the "Keys" section</li>
+                    </ul>
+                </li>
+
+                <li>
+                    <strong>Get a phone number:</strong>
+                    <ul style="margin-top: 10px;">
+                        <li>In your Communication Services resource, go to "Phone numbers"</li>
+                        <li>Click "Get" and acquire a phone number with voice capabilities</li>
+                        <li>Make sure the number supports "Make calls" and "Receive calls"</li>
+                    </ul>
+                </li>
+
+                <li>
+                    <strong>Configure your environment:</strong>
+                    <ul style="margin-top: 10px;">
+                        <li>Copy <code>.env.example</code> to <code>.env</code></li>
+                        <li>Add your Azure credentials to the <code>.env</code> file:</li>
+                    </ul>
+                    <pre>AZURE_COMMUNICATION_CONNECTION_STRING=endpoint=https://...
+AZURE_PHONE_NUMBER=+1234567890
+CALLBACK_BASE_URL=http://localhost:5000</pre>
+                </li>
+
+                <li>
+                    <strong>Restart the application:</strong>
+                    <pre>python app.py</pre>
+                </li>
+            </ol>
+        </div>
+
+        <div class="info-box">
+            <strong>Need help?</strong> Check out the
+            <a href="https://learn.microsoft.com/en-us/azure/communication-services/" target="_blank">
+                Azure Communication Services documentation
+            </a>
+        </div>
+
+        <a href="/" class="btn">Back to Home</a>
+    </div>
+</body>
+</html>
