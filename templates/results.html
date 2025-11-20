@@ -1,0 +1,26 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>SEO Analysis Results</title>
+</head>
+<body>
+    <h1>SEO Results for {{ base_url }}</h1>
+    {% for result in results %}
+        <div style="border:1px solid #aaa; padding:10px; margin:10px;">
+            <h2>{{ result.url }}</h2>
+            <p><strong>Title:</strong> {{ result.title }}</p>
+            <p><strong>Meta Description:</strong> {{ result.meta_description }}</p>
+            <p><strong>Meta Keywords:</strong> {{ result.meta_keywords }}</p>
+            <p><strong>Word Count:</strong> {{ result.word_count }}</p>
+            <p><strong>Headings:</strong></p>
+            <ul>
+            {% for h in result.h_tags %}
+                <li>{{ h[0] }}: {{ h[1] }}</li>
+            {% endfor %}
+            </ul>
+            <p><strong>Alt Tags:</strong> {{ result.alt_tags|length }}</p>
+        </div>
+    {% endfor %}
+</body>
+</html>

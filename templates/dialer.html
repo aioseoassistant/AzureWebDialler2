@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Azure Communication Services - Web Dialer</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            padding: 40px;
+            max-width: 500px;
+            width: 100%;
+        }
+
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 10px;
+            font-size: 28px;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+
+        .status {
+            text-align: center;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .status.disconnected {
+            background: #fee;
+            color: #c33;
+        }
+
+        .status.connecting {
+            background: #fef3cd;
+            color: #856404;
+        }
+
+        .status.connected {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status.in-call {
+            background: #d1ecf1;
+            color: #0c5460;
+        }
+
+        .phone-display {
+            background: #f8f9fa;
+            border: 2px solid #dee2e6;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+            min-height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            font-weight: 500;
+            color: #333;
+            letter-spacing: 1px;
+        }
+
+        .dialpad {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .dialpad button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 70px;
+            height: 70px;
+            font-size: 24px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .dialpad button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .dialpad button:active {
+            transform: translateY(0);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .dialpad button .sub {
+            display: block;
+            font-size: 10px;
+            margin-top: -5px;
+            opacity: 0.8;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .action-buttons button {
+            flex: 1;
+            padding: 15px;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .btn-call {
+            background: #28a745;
+            color: white;
+        }
+
+        .btn-call:hover {
+            background: #218838;
+        }
+
+        .btn-hangup {
+            background: #dc3545;
+            color: white;
+        }
+
+        .btn-hangup:hover {
+            background: #c82333;
+        }
+
+        .btn-clear {
+            background: #6c757d;
+            color: white;
+        }
+
+        .btn-clear:hover {
+            background: #5a6268;
+        }
+
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .info {
+            background: #e7f3ff;
+            border-left: 4px solid #2196F3;
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 5px;
+        }
+
+        .info strong {
+            display: block;
+            margin-bottom: 5px;
+            color: #1976D2;
+        }
+
+        .info code {
+            background: white;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: 'Courier New', monospace;
+        }
+
+        .error {
+            background: #fee;
+            border-left: 4px solid #dc3545;
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 5px;
+            color: #c33;
+            display: none;
+        }
+
+        .call-controls {
+            display: none;
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 2px solid #dee2e6;
+        }
+
+        .call-controls.active {
+            display: block;
+        }
+
+        .call-info {
+            text-align: center;
+            margin-bottom: 15px;
+        }
+
+        .call-timer {
+            font-size: 32px;
+            font-weight: 600;
+            color: #667eea;
+            margin-bottom: 5px;
+        }
+
+        .call-number {
+            font-size: 18px;
+            color: #666;
+        }
+
+        .dtmf-buttons {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .dtmf-buttons button {
+            padding: 12px;
+            background: #f8f9fa;
+            border: 2px solid #dee2e6;
+            border-radius: 8px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .dtmf-buttons button:hover {
+            background: #e9ecef;
+            border-color: #667eea;
+        }
+
+        .dtmf-buttons button:active {
+            background: #667eea;
+            color: white;
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                padding: 20px;
+            }
+
+            .dialpad button {
+                width: 60px;
+                height: 60px;
+                font-size: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Web Dialer</h1>
+        <p class="subtitle">Azure Communication Services</p>
+
+        <div class="error" id="errorMessage"></div>
+
+        <div class="info">
+            <strong>Your Phone Number:</strong>
+            <code id="myPhoneNumber">{{ phone_number }}</code>
+        </div>
+
+        <div class="status disconnected" id="status">
+            Initializing...
+        </div>
+
+        <div class="phone-display" id="phoneDisplay">
+            Enter number
+        </div>
+
+        <div class="dialpad">
+            <button onclick="dialPad('1')">1<span class="sub"></span></button>
+            <button onclick="dialPad('2')">2<span class="sub">ABC</span></button>
+            <button onclick="dialPad('3')">3<span class="sub">DEF</span></button>
+            <button onclick="dialPad('4')">4<span class="sub">GHI</span></button>
+            <button onclick="dialPad('5')">5<span class="sub">JKL</span></button>
+            <button onclick="dialPad('6')">6<span class="sub">MNO</span></button>
+            <button onclick="dialPad('7')">7<span class="sub">PQRS</span></button>
+            <button onclick="dialPad('8')">8<span class="sub">TUV</span></button>
+            <button onclick="dialPad('9')">9<span class="sub">WXYZ</span></button>
+            <button onclick="dialPad('*')">*<span class="sub"></span></button>
+            <button onclick="dialPad('0')">0<span class="sub">+</span></button>
+            <button onclick="dialPad('#')">#<span class="sub"></span></button>
+        </div>
+
+        <div class="action-buttons">
+            <button class="btn-call" id="btnCall" onclick="makeCall()" disabled>Call</button>
+            <button class="btn-hangup" id="btnHangup" onclick="hangupCall()" disabled>Hangup</button>
+            <button class="btn-clear" onclick="clearNumber()">Clear</button>
+        </div>
+
+        <div class="call-controls" id="callControls">
+            <div class="call-info">
+                <div class="call-timer" id="callTimer">00:00</div>
+                <div class="call-number" id="callNumber"></div>
+            </div>
+            <div>
+                <strong style="display: block; margin-bottom: 10px; text-align: center;">Send DTMF Tones</strong>
+                <div class="dtmf-buttons">
+                    <button onclick="sendDTMF('1')">1</button>
+                    <button onclick="sendDTMF('2')">2</button>
+                    <button onclick="sendDTMF('3')">3</button>
+                    <button onclick="sendDTMF('4')">4</button>
+                    <button onclick="sendDTMF('5')">5</button>
+                    <button onclick="sendDTMF('6')">6</button>
+                    <button onclick="sendDTMF('7')">7</button>
+                    <button onclick="sendDTMF('8')">8</button>
+                    <button onclick="sendDTMF('9')">9</button>
+                    <button onclick="sendDTMF('*')">*</button>
+                    <button onclick="sendDTMF('0')">0</button>
+                    <button onclick="sendDTMF('#')">#</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Azure Communication Services Calling SDK -->
+    <script src="https://cdn.jsdelivr.net/npm/@azure/communication-calling@1.24.1/dist/calling.min.js"></script>
+
+    <!-- Dialer JavaScript -->
+    <script src="{{ url_for('static', filename='dialer.js') }}"></script>
+</body>
+</html>
