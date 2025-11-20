@@ -1,0 +1,46 @@
+# Systemd service file for Azure Communication Services Web Dialer
+# Copy this file to: /etc/systemd/system/azuredialer.service
+#
+# Installation:
+# sudo cp azuredialer.service /etc/systemd/system/
+# sudo systemctl daemon-reload
+# sudo systemctl enable azuredialer
+# sudo systemctl start azuredialer
+#
+# Check status:
+# sudo systemctl status azuredialer
+#
+# View logs:
+# sudo journalctl -u azuredialer -f
+
+[Unit]
+Description=Azure Communication Services Web Dialer
+After=network.target
+
+[Service]
+Type=notify
+User=www-data
+Group=www-data
+WorkingDirectory=/var/www/AzureWebDialler2
+Environment="PATH=/var/www/AzureWebDialler2/venv/bin"
+
+# Start the application with Gunicorn
+# Adjust --workers based on your server: (2 x CPU cores) + 1
+ExecStart=/var/www/AzureWebDialler2/venv/bin/gunicorn \
+    --workers 3 \
+    --bind 127.0.0.1:8000 \
+    --timeout 120 \
+    --access-logfile - \
+    --error-logfile - \
+    app:app
+
+# Restart policy
+Restart=always
+RestartSec=10
+
+# Security settings
+PrivateTmp=true
+NoNewPrivileges=true
+
+[Install]
+WantedBy=multi-user.target
